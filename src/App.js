@@ -1,23 +1,35 @@
 import React from "react";
-// Returns a component:
-export default function Square() {
-    // return <button className="square">X</button>;
+
+// Components must start with capital letters.
+function Square({ value }) {
+    function handleClick() {
+        console.log("Clicked!");
+    }
+
+    return (
+        <button className="square" onClick={handleClick}>
+            {value}
+        </button>
+    );
+}
+
+export default function Board() {
     return (
         <React.Fragment>
             <div className="board-row">
-                <button className="square">X</button>
-                <button className="square">X</button>
-                <button className="square">X</button>
+                <Square />
+                <Square />
+                <Square />
             </div>
             <div className="board-row">
-                <button className="square">X</button>
-                <button className="square">X</button>
-                <button className="square">X</button>
+                <Square />
+                <Square />
+                <Square />
             </div>
             <div className="board-row">
-                <button className="square">X</button>
-                <button className="square">X</button>
-                <button className="square">X</button>
+                <Square />
+                <Square />
+                <Square />
             </div>
         </React.Fragment>
     );
