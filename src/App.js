@@ -1,15 +1,17 @@
 import React from "react";
 import { useState } from "react";
 
-// Components must start with capital letters.
-function Square({value, onSquareClick}) {
-
+class Square extends React.Component {
+  render() {
+    const { value, onSquareClick } = this.props;
     return (
-        <button className="square" onClick={onSquareClick}>
-            {value}
-        </button>
+      <button className="square" onClick={onSquareClick}>
+        {value}
+      </button>
     );
+  }
 }
+
 
 function Board({xIsNext, squares, onPlay}) {
     /*
@@ -83,6 +85,10 @@ function Board({xIsNext, squares, onPlay}) {
         </React.Fragment>
     );
 }
+
+// function Command() {
+    
+// }
 
 export default function Game() {
     const [history, setHistory] = useState([Array(9).fill(null)]);
