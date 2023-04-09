@@ -1,133 +1,146 @@
 import React from "react";
-import { useState } from "react";
+import "./newStyles.css";
 
-class Square extends React.Component {
-  render() {
-    const { value, onSquareClick } = this.props;
-    return (
-      <button className="square" onClick={onSquareClick}>
-        {value}
-      </button>
-    );
-  }
-}
+class Command extends React.Component {
 
-
-function Board({xIsNext, squares, onPlay}) {
-    /*
-    to have two child components communicate with each other,
-    declare the shared state in their parent component instead
-    */
-
-    function handleClick(i) {
-        if (squares[i] || calculateWinner(squares)){
-            return;
-        }
-
-        const nextSquares = squares.slice();
-
-        nextSquares[i] = (xIsNext) ? "X" : "O";
-        
-        onPlay(nextSquares);
+    constructor(props) {
+        super(props);
+        this.state = {
+            toggle: true,
+            sent: false
+        };
+        this.clickEvent = this.clickEvent.bind(this);
     }
 
-    function calculateWinner(squares) {
-        const lines = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6],
-        ];
-        for (let i = 0; i < lines.length; i++) {
-            const [a, b, c] = lines[i];
-            if (
-                squares[a] &&
-                squares[a] === squares[b] &&
-                squares[a] === squares[c]
-            ) {
-                return squares[a];
+    clickEvent() {
+        // this.value = !(this.value);
+        this.setState({sent: !this.state.sent})
+    }
+
+    render() {
+        return (
+            <div>
+                <label>Send command: </label>
+                <button disabled={!this.props.ready} onClick={this.clickEvent}>
+                    {(this.state.sent).toString()}
+                </button>
+            </div>
+        );
+    }
+}
+
+class TelemCheck extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            toggle: true
+        };
+        this.clickEvent = this.clickEvent.bind(this);
+    }
+
+    clickEvent() {
+        // this.value = !(this.value);
+        this.setState({toggle: !this.state.toggle}, () => {
+            this.props.onToggleChange(this.props.index, this.state.toggle);
+        });
+    }
+
+    render() {
+        return (
+            <div>
+                <label>{this.props.title}: </label>
+                <button onClick={this.clickEvent}>
+                    Set to {(!this.state.toggle).toString()}
+                </button>
+                {!this.state.toggle &&
+                    <p style={{marginLeft: '20px'}}>Contingency message</p>
+                }
+            </div>
+        );
+    }
+}
+
+class ProcedureStep extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            telemChecks: [
+                // <TelemCheck key="1" title="Stream 1"/>,
+                // <TelemCheck key="2" title="Stream 2"/>
+                {toggle: true},
+                {toggle: true}
+            ],
+            commands: [
+                <Command key="1" ready={false}/>
+            ]
+        };
+        this.handleToggleChange = this.handleToggleChange.bind(this);
+    }
+
+    handleToggleChange(index, toggle) {
+        const newTelemChecks = [...this.state.telemChecks];
+        newTelemChecks[index] = {toggle: toggle};
+        this.setState({telemChecks: newTelemChecks});
+    }
+
+    checkTelemStatus() {
+        for (let i = 0; i < this.state.telemChecks.length; i++) {
+            if (!this.state.telemChecks[i].toggle) {
+                return false;
             }
         }
-        return null;
+        return true;
     }
-
-    // Not explicitly re-defined, components automatically render upon a change.
-    const winner = calculateWinner(squares);
-    let status;
-    if (winner) {
-        status = "Winner: " + winner;
-    } else {
-        status = "Next player: " + (xIsNext ? "X" : "O");
-    }
-
-    return ( 
-        <React.Fragment>
-            <div className="status">{status}</div>
-            <div className="board-row">
-                <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-                <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-                <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-            </div>
-            <div className="board-row">
-                <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-                <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-                <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-            </div>
-            <div className="board-row">
-                <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-                <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-                <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-            </div>
-        </React.Fragment>
-    );
-}
-
-// function Command() {
     
-// }
+    render() {
 
-export default function Game() {
-    const [history, setHistory] = useState([Array(9).fill(null)]);
-    const [currentMove, setCurrentMove] = useState(0);
-    const xIsNext = currentMove % 2 === 0;
-    const currentSquares = history[currentMove];
+        const commandsReady = this.checkTelemStatus();
 
-    function handlePlay(nextSquares) {
-        const nextHistory = [...history.slice(0, currentMove+1), nextSquares];
-        setHistory(nextHistory);
-        setCurrentMove(nextHistory.length-1);
-    }
-
-    function jumpTo(nextMove) {
-        setCurrentMove(nextMove);
-    }
-
-    const moves = history.map((squares, move) => {
-        let description;
-        if (move > 0) {
-            description = 'Go to move #' + move;
-        } else {
-            description = 'Go to game start';
-        }
         return (
-            <li key={move}>
-                <button onClick={() => jumpTo(move)}>{description}</button>
-            </li>
+            <div className="ProcedureStep">
+                <div className="title">
+                    <button>Flag</button>
+                    <button>Notes</button>
+                    <button>Docs</button>
+                    Helllo
+                </div>
+                <div className="subSection">
+                    <div className="sectionHeader">
+                        TELEMETRY CHECKS
+                    </div>
+                    <div className="sectionBody">
+                        {this.state.telemChecks.map((check, index) =>
+                            <TelemCheck
+                                key={index}
+                                title={`Stream ${index+1}`}
+                                index={index}
+                                onToggleChange={this.handleToggleChange}
+                            />
+                        )}
+                    </div>
+                </div>
+                <div className="subSection">
+                    <div className="sectionHeader">
+                        COMMANDS
+                    </div>
+                    <div className="sectionBody">
+                        {this.state.commands.map(command =>
+                            React.cloneElement(command, {ready: commandsReady})
+                        )}
+                    </div>
+                </div>
+            </div>
         );
-    });
-
-    return (
-        <div className="game">
-            <div className="game-board">
-            <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-            </div>
-            <div className="game-info">
-                <ol>{moves}</ol>
-            </div>
-        </div>
-    )
+    }
 }
+
+class TopLevel extends React.Component {
+    render() {
+        return (
+            <ProcedureStep stepID="2.130.3.7"/>
+        )
+    }
+}
+
+export default TopLevel;

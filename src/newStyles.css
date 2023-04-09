@@ -1,0 +1,27 @@
+.ProcedureStep {
+    border: 1px solid black;
+    display: inline-block;
+}
+
+.title {
+    font-size: 20px;
+    border-bottom: 1px solid black;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    align-items: center;
+}
+
+.subSection {
+    border-bottom: 1px solid black;
+}
+
+.sectionHeader {
+    border-bottom: 1px solid black;
+    text-align: center;
+    font-size: 12px;
+}
+
+.sectionBody {
+    padding: 10px;
+}
+  
