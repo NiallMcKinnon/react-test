@@ -14,7 +14,10 @@ class Command extends React.Component {
 
     clickEvent() {
         // this.value = !(this.value);
-        this.setState({sent: !this.state.sent})
+        // this.setState({sent: !this.state.sent})
+        this.setState({sent: !this.state.sent}, () => {
+            this.props.onCommandSend(this.props.index, this.state.sent);
+        });
     }
 
     render() {
@@ -33,7 +36,7 @@ class TelemCheck extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            toggle: true
+            toggle: false
         };
         this.clickEvent = this.clickEvent.bind(this);
     }
@@ -61,27 +64,27 @@ class TelemCheck extends React.Component {
 }
 
 class ProcedureStep extends React.Component {
-
     constructor(props) {
         super(props);
         this.state = {
-            telemChecks: [
-                // <TelemCheck key="1" title="Stream 1"/>,
-                // <TelemCheck key="2" title="Stream 2"/>
-                {toggle: true},
-                {toggle: true}
-            ],
-            commands: [
-                <Command key="1" ready={false}/>
-            ]
+            telemChecks: [{ toggle: false }, { toggle: false }],
+            // commands: [<Command key="1" ready={false} />],
+            commands: [{sent: false}]
         };
         this.handleToggleChange = this.handleToggleChange.bind(this);
+        this.handleCommandSend = this.handleCommandSend.bind(this);
     }
 
     handleToggleChange(index, toggle) {
         const newTelemChecks = [...this.state.telemChecks];
-        newTelemChecks[index] = {toggle: toggle};
-        this.setState({telemChecks: newTelemChecks});
+        newTelemChecks[index] = { toggle: toggle };
+        this.setState({ telemChecks: newTelemChecks });
+    }
+
+    handleCommandSend(index, sent) {
+        const newCommands = [...this.state.commands];
+        newCommands[index] = {sent: sent};
+        this.setState({commands: newCommands});
     }
 
     checkTelemStatus() {
@@ -92,10 +95,19 @@ class ProcedureStep extends React.Component {
         }
         return true;
     }
-    
-    render() {
 
+    checkCommandStatus() {
+        for (let i = 0; i < this.state.commands.length; i++) {
+            if (!this.state.commands[i].sent) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    render() {
         const commandsReady = this.checkTelemStatus();
+        const allCommandsSent = this.checkCommandStatus();
 
         return (
             <div className="ProcedureStep">
@@ -106,29 +118,33 @@ class ProcedureStep extends React.Component {
                     Helllo
                 </div>
                 <div className="subSection">
-                    <div className="sectionHeader">
-                        TELEMETRY CHECKS
-                    </div>
+                    <div className="sectionHeader">TELEMETRY CHECKS</div>
                     <div className="sectionBody">
-                        {this.state.telemChecks.map((check, index) =>
+                        {this.state.telemChecks.map((check, index) => (
                             <TelemCheck
                                 key={index}
-                                title={`Stream ${index+1}`}
+                                title={`Stream ${index + 1}`}
                                 index={index}
                                 onToggleChange={this.handleToggleChange}
                             />
-                        )}
+                        ))}
                     </div>
                 </div>
                 <div className="subSection">
-                    <div className="sectionHeader">
-                        COMMANDS
-                    </div>
+                    <div className="sectionHeader">COMMANDS</div>
                     <div className="sectionBody">
-                        {this.state.commands.map(command =>
-                            React.cloneElement(command, {ready: commandsReady})
-                        )}
+                        {this.state.commands.map((check, index) => (
+                            <Command
+                                key={index}
+                                ready={commandsReady}
+                                index={index}
+                                onCommandSend={this.handleCommandSend}
+                            />
+                        ))}
                     </div>
+                </div>
+                <div className="subSection">
+                    <button disabled={!allCommandsSent}>Proceed to next step</button>
                 </div>
             </div>
         );
