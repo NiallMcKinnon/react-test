@@ -25,7 +25,7 @@ class Command extends React.Component {
             <div>
                 <label>Send command: </label>
                 <button disabled={!this.props.ready} onClick={this.clickEvent}>
-                    {(this.state.sent).toString()}
+                    {(this.state.sent) ? "Sent" : "Not Sent"}
                 </button>
             </div>
         );
@@ -53,7 +53,8 @@ class TelemCheck extends React.Component {
             <div>
                 <label>{this.props.title}: </label>
                 <button onClick={this.clickEvent}>
-                    Set to {(!this.state.toggle).toString()}
+                    {/* Set to {(!this.state.toggle).toString()} */}
+                    {(this.state.toggle) ? "Nominal" : "Off-Nominal"}
                 </button>
                 {!this.state.toggle &&
                     <p style={{marginLeft: '20px'}}>Contingency message</p>
@@ -69,10 +70,16 @@ class ProcedureStep extends React.Component {
         this.state = {
             telemChecks: [{ toggle: false }, { toggle: false }],
             // commands: [<Command key="1" ready={false} />],
-            commands: [{sent: false}]
+            commands: [{sent: false}],
+            showDocs: false,
+            showNotes: false,
+            showFlag: false
         };
         this.handleToggleChange = this.handleToggleChange.bind(this);
         this.handleCommandSend = this.handleCommandSend.bind(this);
+        this.showDocPanel = this.showDocPanel.bind(this);
+        this.showNotesPanel = this.showNotesPanel.bind(this);
+        this.showFlagPanel = this.showFlagPanel.bind(this);
     }
 
     handleToggleChange(index, toggle) {
@@ -105,18 +112,57 @@ class ProcedureStep extends React.Component {
         return true;
     }
 
+    showDocPanel() {
+        this.setState({showDocs: !this.state.showDocs})
+    }
+    showFlagPanel() {
+        this.setState({showFlag: !this.state.showFlag})
+    }
+    showNotesPanel() {
+        this.setState({showNotes: !this.state.showNotes})
+    }
+
     render() {
         const commandsReady = this.checkTelemStatus();
         const allCommandsSent = this.checkCommandStatus();
 
         return (
             <div className="ProcedureStep">
+
                 <div className="title">
-                    <button>Flag</button>
-                    <button>Notes</button>
-                    <button>Docs</button>
-                    Helllo
+                    <button onClick={this.showFlagPanel}>Flag</button>
+                    <button onClick={this.showNotesPanel}>Notes</button>
+                    <button onClick={this.showDocPanel}>Docs</button>
+                    Demo Procedure Step
                 </div>
+
+                { this.state.showDocs ? 
+                    <div className="docsSection">
+                        <div className="sectionHeader">DOCUMENTATION</div>
+                        <div className="sectionBody">
+                            Documentation
+                        </div>
+                    </div>
+                : null}
+
+                { this.state.showNotes ? 
+                    <div className="notesSection">
+                        <div className="sectionHeader">NOTES</div>
+                        <div className="sectionBody">
+                            Notes
+                        </div>
+                    </div>
+                : null}
+
+                { this.state.showFlag ? 
+                    <div className="flagSection">
+                        <div className="sectionHeader">ADD NOTE</div>
+                        <div className="sectionBody">
+                            Add new note
+                        </div>
+                    </div>
+                : null}
+
                 <div className="subSection">
                     <div className="sectionHeader">TELEMETRY CHECKS</div>
                     <div className="sectionBody">
@@ -130,6 +176,7 @@ class ProcedureStep extends React.Component {
                         ))}
                     </div>
                 </div>
+
                 <div className="subSection">
                     <div className="sectionHeader">COMMANDS</div>
                     <div className="sectionBody">
@@ -143,9 +190,11 @@ class ProcedureStep extends React.Component {
                         ))}
                     </div>
                 </div>
+
                 <div className="subSection">
                     <button disabled={!allCommandsSent}>Proceed to next step</button>
                 </div>
+
             </div>
         );
     }
